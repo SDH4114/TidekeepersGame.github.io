@@ -6,17 +6,9 @@
   <title>Tidekeepers — Echoes of the Plastic Sea (Prototype)</title>
   <style>
     :root{
-      --bg:#0b1220;           /* deep ocean */
-      --panel:#0f1a2e;        /* UI panels */
-      --ink:#e6f0ff;          /* text */
-      --muted:#9fb4d6;        /* muted text */
-      --accent:#3ee6a5;       /* neon green */
-      --accent-2:#12b3ff;     /* cyan */
-      --warn:#ffb74d;         /* amber */
-      --danger:#ff6b6b;       /* coral */
-      --good:#62f29e;         /* success */
-      --sand:#f4e2b3;         /* beach sand */
-      --sea:#0a2848;          /* sea band */
+      --bg:#0b1220; --panel:#0f1a2e; --ink:#e6f0ff; --muted:#9fb4d6;
+      --accent:#3ee6a5; --accent-2:#12b3ff; --warn:#ffb74d; --danger:#ff6b6b;
+      --good:#62f29e; --sand:#f4e2b3; --sea:#0a2848;
     }
     * { box-sizing: border-box }
     body{
@@ -61,6 +53,11 @@
     .tabs{display:flex; gap:8px; flex-wrap:wrap}
     .tabs button{all:unset; cursor:pointer; padding:8px 10px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-radius:8px; color:var(--muted)}
     .tabs button.active{background:rgba(62,230,165,.15); color:var(--ink); border-color:rgba(62,230,165,.35)}
+    .tabs button.locked{opacity:.45; pointer-events:none}
+
+    .objective{color:var(--muted); font-size:13px; margin-top:6px}
+    .nextRow{display:flex; gap:8px; margin-top:10px}
+    .pill{display:inline-block; padding:2px 8px; border:1px solid rgba(255,255,255,.15); border-radius:999px; font-size:12px; color:var(--muted)}
 
     /* --- Scene containers --- */
     .scene{display:none}
@@ -99,7 +96,6 @@
     .log .good{color:var(--good)}
     .log .bad{color:var(--danger)}
 
-    /* FOOTER */
     footer{margin-top:auto; color:var(--muted); text-align:center; padding:10px}
     a{color:var(--accent)}
   </style>
@@ -112,14 +108,13 @@
       <div class="sp"></div>
       <div class="meter">
         <div class="chip"><span class="dot" style="background:var(--accent)"></span><small>Research</small> <b id="score">0</b></div>
-        <div class="chip"><span class="dot" style="background:var(--warn)"></span><small>Volunteers</small> <b id="vol">5</b></div>
+        <div class="chip"><span class="dot" style="background:var(--warn)"></span><small>Volunteers</small> <b id="vol">6</b></div>
         <div class="chip"><span class="dot" style="background:var(--good)"></span><small>Eco Health</small> <b id="health">60%</b></div>
       </div>
     </div>
   </header>
 
   <main>
-    <!-- LEFT COLUMN: Cast + Actions -->
     <div class="left">
       <div class="card">
         <div class="hd"><b>Cast</b><span class="tag">Tap to hear advice</span></div>
@@ -137,9 +132,9 @@
         <div class="bd">
           <div class="tabs">
             <button class="active" data-tab="cleanup">Level 1 — Beach Cleanup</button>
-            <button data-tab="filter">Level 7 — Microfilter Lab</button>
-            <button data-tab="invest">Level 4 — River Riddle</button>
-            <button data-tab="final">Endgame — Exposé or Accord</button>
+            <button class="locked" data-tab="invest">Level 2 — River Riddle</button>
+            <button class="locked" data-tab="filter">Level 3 — Microfilter Lab</button>
+            <button class="locked" data-tab="final">Level 4 — Endgame</button>
           </div>
         </div>
       </div>
@@ -152,9 +147,8 @@
       </div>
     </div>
 
-    <!-- RIGHT COLUMN: Scenes -->
     <div>
-      <!-- BEACH CLEANUP SCENE -->
+      <!-- LEVEL 1 -->
       <div id="cleanup" class="scene active">
         <div class="card">
           <div class="hd"><b>Level 1 — First Light: Beach Cleanup & Sorting</b><span class="tag">Drag items into correct bins</span></div>
@@ -172,15 +166,18 @@
                 <button class="btn alt" id="resetBeach">Reset</button>
               </div>
               <div style="margin-top:8px; color:var(--muted)">Tip: Sorting correctly adds <b>Research</b> and boosts <b>Eco Health</b>. Wrong bins cost Volunteers (time).</div>
+
+              <div class="objective">Objective: correctly sort <b id="objL1Need">8</b> items. Progress: <span class="pill" id="objL1Now">0</span></div>
+              <div class="nextRow"><button class="btn" id="nextToInvest" disabled>Next: Unlock Level 2</button></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- MICROFILTER SCENE -->
+      <!-- LEVEL 3 -->
       <div id="filter" class="scene">
         <div class="card">
-          <div class="hd"><b>Level 7 — Coral Rescue: Microfilter Challenge</b><span class="tag">Design a mesh then run 15s trial</span></div>
+          <div class="hd"><b>Level 3 — Coral Rescue: Microfilter Challenge</b><span class="tag">Design a mesh then run 15s trial</span></div>
           <div class="bd lab">
             <div class="gridWrap">
               <canvas id="lab" width="720" height="460" aria-label="Microfilter simulation"></canvas>
@@ -212,15 +209,18 @@
                 <div class="scale"><i id="fScale"></i></div>
               </div>
               <div id="labMsg" style="min-height:24px; color:var(--muted)"></div>
+
+              <div class="objective">Objective: success once (≥70% microplastics & ≥80% fish safe).</div>
+              <div class="nextRow"><button class="btn" id="nextToFinal" disabled>Next: Unlock Level 4</button></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- INVESTIGATION SCENE -->
+      <!-- LEVEL 2 -->
       <div id="invest" class="scene">
         <div class="card">
-          <div class="hd"><b>Level 4 — River Riddle: Tracing the Source</b><span class="tag">Tap nodes, follow clues, choose culprit</span></div>
+          <div class="hd"><b>Level 2 — River Riddle: Tracing the Source</b><span class="tag">Tap nodes, follow clues, choose culprit</span></div>
           <div class="bd invest">
             <div class="map" id="map">
               <button class="node" style="left:28%; top:70%" data-id="beach">🏖️ Beach</button>
@@ -235,16 +235,18 @@
                 <button class="btn" id="accuseRift">Accuse RiftCo</button>
                 <button class="btn alt" id="negotiate">Negotiate fixes</button>
               </div>
+              <div class="objective">Objective: gather evidence score ≥ <b id="objL2Need">4</b>. Current: <span class="pill" id="objL2Now">0</span></div>
+              <div class="nextRow"><button class="btn" id="nextToFilter" disabled>Next: Unlock Level 3</button></div>
               <small style="color:var(--muted)">Evidence quality boosts Research and long-term Eco Health. Negotiation yields slower but steadier gains.</small>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ENDGAME SCENE -->
+      <!-- LEVEL 4 -->
       <div id="final" class="scene">
         <div class="card">
-          <div class="hd"><b>Endgame — Exposé or Accord</b><span class="tag">Your decision shapes the world</span></div>
+          <div class="hd"><b>Level 4 — Endgame: Exposé or Accord</b><span class="tag">Your decision shapes the world</span></div>
           <div class="bd">
             <p>You’ve traced upstream leaks and piloted a coral-safe filter. The city is watching. Do you release your data publicly or negotiate a binding policy change?</p>
             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:8px">
@@ -253,29 +255,43 @@
             </div>
             <div id="ending" style="margin-top:12px; padding:10px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); border-radius:10px; min-height:64px"></div>
             <small style="color:var(--muted)">Replay the levels to raise Research and Eco Health further. This prototype demonstrates the core loop & learning goals.</small>
+            <div class="objective">Tip: You can replay earlier levels to improve stats.</div>
           </div>
         </div>
       </div>
     </div>
   </main>
 
-  <footer>
-    Built for learning: sorting ➝ filtration ➝ investigation ➝ policy. © Tidekeepers prototype — no assets required.
-  </footer>
+  <footer>Built for learning: sorting ➝ filtration ➝ investigation ➝ policy. © Tidekeepers prototype — no assets required.</footer>
 
 <script>
 // -------------------- Core State --------------------
-const state = {
-  score: 0,        // Research points
-  volunteers: 5,   // abstract time/people
-  health: 60,      // eco health percentage
-  evidence: 0,     // investigation evidence quality
-};
+const state = { score: 0, volunteers: 6, health: 60, evidence: 0 };
 const el = {
   score: document.getElementById('score'),
   vol: document.getElementById('vol'),
   health: document.getElementById('health'),
 };
+const progress = {
+  l1Sorted: 0, l1Goal: 8, l2Goal: 4, l3Done: false,
+  unlocked: {invest:false, filter:false, final:false}
+};
+const ui = {
+  tabs: document.querySelectorAll('.tabs button'),
+  btnInvest: document.querySelector('.tabs button[data-tab="invest"]'),
+  btnFilter: document.querySelector('.tabs button[data-tab="filter"]'),
+  btnFinal: document.querySelector('.tabs button[data-tab="final"]'),
+  objL1Need: document.getElementById('objL1Need'),
+  objL1Now: document.getElementById('objL1Now'),
+  objL2Need: document.getElementById('objL2Need'),
+  objL2Now: document.getElementById('objL2Now'),
+  nextToInvest: document.getElementById('nextToInvest'),
+  nextToFilter: document.getElementById('nextToFilter'),
+  nextToFinal: document.getElementById('nextToFinal')
+};
+ui.objL1Need.textContent = progress.l1Goal;
+ui.objL2Need.textContent = progress.l2Goal;
+
 function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
 function syncHUD(){
   el.score.textContent = Math.floor(state.score);
@@ -284,34 +300,30 @@ function syncHUD(){
 }
 syncHUD();
 
-// -------------------- Tabs --------------------
+// -------------------- Tabs + safe switch --------------------
 const tabBtns = document.querySelectorAll('.tabs button');
 const scenes = document.querySelectorAll('.scene');
+function goto(tabId){
+  tabBtns.forEach(b=>b.classList.remove('active'));
+  const btn = Array.from(tabBtns).find(b=>b.dataset.tab===tabId);
+  if(btn) btn.classList.add('active');
+  scenes.forEach(s=>s.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  if(tabId!=='filter' && typeof running!=='undefined' && running){ running=false; }
+}
 tabBtns.forEach(btn=>{
   btn.addEventListener('click',()=>{
-    tabBtns.forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    scenes.forEach(s=>s.classList.remove('active'));
-    document.getElementById(btn.dataset.tab).classList.add('active');
+    if(btn.classList.contains('locked')) return;
+    goto(btn.dataset.tab);
   });
 });
 
-// -------------------- Cast Advice (flavor) --------------------
+// -------------------- Cast Advice --------------------
 const voiceLines = {
-  Awa: [
-    'Scanning shoreline… microplastic density high. Small wins add up! ♻️',
-    'I can lift tiny debris. You handle the big stuff, partner.',
-  ],
-  Mara: [
-    'Record what you collect. Data powers policy.',
-    'Design filters that protect coral and let fish pass.',
-  ],
-  Rho: [
-    'We fix what we can today and fight for better rules tomorrow.',
-    'Talk to folks upriver. Trouble flows downhill.',
-  ]
+  Awa: ['Scanning shoreline… microplastic density high. Small wins add up! ♻️','I can lift tiny debris. You handle the big stuff, partner.'],
+  Mara: ['Record what you collect. Data powers policy.','Design filters that protect coral and let fish pass.'],
+  Rho: ['We fix what we can today and fight for better rules tomorrow.','Talk to folks upriver. Trouble flows downhill.']
 };
-
 document.querySelectorAll('.npc').forEach(n=>{
   n.addEventListener('click',()=>{
     const who = n.dataset.voice;
@@ -320,14 +332,11 @@ document.querySelectorAll('.npc').forEach(n=>{
     const tip = document.createElement('div');
     tip.textContent = who + ': ' + text;
     tip.style.cssText = 'margin-top:6px; color:#9fb4d6;';
-    n.appendChild(tip);
-    setTimeout(()=> tip.remove(), 2800);
+    n.appendChild(tip); setTimeout(()=> tip.remove(), 2800);
   });
 });
 
-// ==============================================================
-// LEVEL 1 — BEACH CLEANUP & SORTING (drag & drop)
-// ==============================================================
+// ===================== LEVEL 1 — Cleanup =====================
 const TRASH_TYPES = [
   {emoji:'🍼', name:'Plastic bottle', kind:'recycle'},
   {emoji:'🥤', name:'Cup lid', kind:'recycle'},
@@ -339,7 +348,6 @@ const TRASH_TYPES = [
   {emoji:'🥫', name:'Aluminum can', kind:'recycle'},
   {emoji:'🧴', name:'Oil bottle', kind:'hazard'},
 ];
-
 const shore = document.getElementById('shore');
 const spawnBtn = document.getElementById('spawn');
 const resetBeach = document.getElementById('resetBeach');
@@ -351,24 +359,23 @@ function spawnDebris(n=6){
     d.className = 'trash';
     d.textContent = t.emoji;
     d.dataset.kind = t.kind;
+    d.dataset.id = 'tr'+Math.random().toString(36).slice(2,9);
     d.title = t.name;
     d.style.left = Math.random()*78+8 + '%';
     d.style.top = Math.random()*55+35 + '%';
     d.draggable = true;
-    // drag manual for mobile + desktop
     d.addEventListener('dragstart', e=>{
-      e.dataTransfer.setData('text/plain', JSON.stringify({kind:t.kind}));
+      e.dataTransfer.setData('text/plain', JSON.stringify({id:d.dataset.id, kind:t.kind}));
       setTimeout(()=> d.style.opacity=.3, 0);
     });
     d.addEventListener('dragend', ()=> d.style.opacity=1);
     shore.appendChild(d);
   }
 }
-
 spawnBtn.addEventListener('click', ()=> spawnDebris(7));
-resetBeach.addEventListener('click', ()=> shore.innerHTML='');
+resetBeach.addEventListener('click', ()=> { shore.innerHTML=''; progress.l1Sorted=0; ui.objL1Now.textContent='0'; ui.nextToInvest.disabled=true; });
 
-// Drop bins
+// Bins
 const bins = document.querySelectorAll('.bin');
 bins.forEach(bin=>{
   bin.addEventListener('dragover', e=>{ e.preventDefault(); bin.classList.add('ok'); });
@@ -377,16 +384,16 @@ bins.forEach(bin=>{
     e.preventDefault(); bin.classList.remove('ok');
     const data = JSON.parse(e.dataTransfer.getData('text/plain')||'{}');
     const accept = bin.dataset.accept;
-    // find a matching trash near cursor to remove
-    let taken=false;
-    document.querySelectorAll('.trash').forEach(tr=>{
-      if(!taken && tr.dataset.kind===data.kind){ tr.remove(); taken=true; }
-    });
+
+    const dragged = data.id ? document.querySelector(`.trash[data-id="${data.id}"]`) : null;
+    if(dragged){ dragged.remove(); }
+
     const slot = bin.querySelector('.slot');
     if(data.kind===accept){
       slot.textContent = '✔ ' + accept + ' item';
-      state.score += 3;
-      state.health = clamp(state.health + 1.2, 0, 100);
+      state.score += 3; state.health = clamp(state.health + 1.2, 0, 100);
+      progress.l1Sorted++; ui.objL1Now.textContent = progress.l1Sorted;
+      if(progress.l1Sorted>=progress.l1Goal){ ui.nextToInvest.disabled = false; }
     } else {
       bin.classList.add('bad'); setTimeout(()=>bin.classList.remove('bad'), 500);
       slot.textContent = '✖ wrong bin';
@@ -396,33 +403,32 @@ bins.forEach(bin=>{
     syncHUD();
   });
 });
+document.getElementById('nextToInvest').addEventListener('click', ()=>{
+  progress.unlocked.invest = true;
+  ui.btnInvest.classList.remove('locked');
+  goto('invest');
+});
 
-// ==============================================================
-// LEVEL 7 — MICROFILTER LAB (canvas sim)
-// ==============================================================
+// ===================== LEVEL 3 — Microfilter ==================
 const cvs = document.getElementById('lab');
 const ctx = cvs.getContext('2d');
 const grid = { cols: 24, rows: 16, cell: 28, ox: 12, oy: 10 };
-const mesh = new Set(); // blocked cells as "c,r" keys
-let placing = true; // toggle place/remove
-let particles = []; // active during trials
+const mesh = new Set();
+let placing = true;
+let particles = [];
 let fishes = [];
 let running = false;
 let trialT = 0;
-let inflow = 3; // particles per tick
+let inflow = 2; // lowered for performance
 
 function cellKey(c,r){ return c+','+r }
 function drawLab(){
   ctx.clearRect(0,0,cvs.width,cvs.height);
-  // water bg
   const g = ctx.createLinearGradient(0,0,0,cvs.height);
   g.addColorStop(0, '#0b3661'); g.addColorStop(1, '#081e36');
   ctx.fillStyle = g; ctx.fillRect(0,0,cvs.width,cvs.height);
-  // coral safe zone at bottom
-  ctx.fillStyle = 'rgba(255, 107, 107, .25)';
-  ctx.fillRect(0, cvs.height-36, cvs.width, 36);
+  ctx.fillStyle = 'rgba(255, 107, 107, .25)'; ctx.fillRect(0, cvs.height-36, cvs.width, 36);
   ctx.fillStyle = '#ff8b8b'; ctx.fillText('Coral zone — keep debris away', 12, cvs.height-18);
-  // grid
   ctx.strokeStyle = 'rgba(255,255,255,.07)';
   for(let r=0;r<grid.rows;r++){
     for(let c=0;c<grid.cols;c++){
@@ -434,23 +440,13 @@ function drawLab(){
       }
     }
   }
-  // particles
-  particles.forEach(p=>{
-    ctx.fillStyle = '#d9f5ff';
-    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
-  });
-  // fish
+  particles.forEach(p=>{ ctx.fillStyle = '#d9f5ff'; ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill(); });
   ctx.fillStyle = '#a6f2ff';
-  fishes.forEach(f=>{
-    ctx.beginPath(); ctx.moveTo(f.x, f.y);
-    ctx.lineTo(f.x-8, f.y-4); ctx.lineTo(f.x-8, f.y+4); ctx.closePath(); ctx.fill();
-  });
-  // HUD overlay
+  fishes.forEach(f=>{ ctx.beginPath(); ctx.moveTo(f.x, f.y); ctx.lineTo(f.x-8, f.y-4); ctx.lineTo(f.x-8, f.y+4); ctx.closePath(); ctx.fill(); });
   ctx.fillStyle = 'rgba(255,255,255,.8)';
   ctx.fillText('Click to ' + (placing? 'place' : 'remove') + ' blocks', cvs.width-170, 18);
   if(running){ ctx.fillText('Trial running… ' + Math.ceil(trialT/1000)+'s', cvs.width-150, 36) }
 }
-
 drawLab();
 
 function snapToCell(x, y){
@@ -459,7 +455,6 @@ function snapToCell(x, y){
   if(c>=0 && c<grid.cols && r>=0 && r<grid.rows){ return {c,r} }
   return null;
 }
-
 cvs.addEventListener('click', e=>{
   if(running) return;
   const rect = cvs.getBoundingClientRect();
@@ -470,23 +465,14 @@ cvs.addEventListener('click', e=>{
   if(placing){ mesh.add(k) } else { mesh.delete(k) }
   drawLab();
 });
-
 document.getElementById('togglePlace').onclick = ()=>{ placing = !placing; drawLab(); };
 document.getElementById('clearMesh').onclick = ()=>{ mesh.clear(); drawLab(); };
 document.getElementById('smallFlow').onclick = ()=> inflow = 2;
 document.getElementById('bigFlow').onclick = ()=> inflow = 5;
 
-function spawnParticle(){
-  particles.push({ x: 20+Math.random()*(cvs.width-40), y: 4, vx: (Math.random()-.5)*0.6, vy: 1.2+Math.random()*0.8, caught:false, dead:false });
-}
-function spawnFish(){
-  fishes.push({ x: 20+Math.random()*(cvs.width-40), y: 6, vx: 0, vy: 1.05+Math.random()*0.6, passed:false, dead:false });
-}
-
-function blockAt(x,y){
-  const cell = snapToCell(x,y); if(!cell) return false;
-  return mesh.has(cellKey(cell.c, cell.r));
-}
+function spawnParticle(){ particles.push({ x: 20+Math.random()*(cvs.width-40), y: 4, vx: (Math.random()-.5)*0.6, vy: 1.2+Math.random()*0.8, caught:false, dead:false }); }
+function spawnFish(){ fishes.push({ x: 20+Math.random()*(cvs.width-40), y: 6, vx: 0, vy: 1.05+Math.random()*0.6, passed:false, dead:false }); }
+function blockAt(x,y){ const cell = snapToCell(x,y); if(!cell) return false; return mesh.has(cellKey(cell.c, cell.r)); }
 
 const pScale = document.getElementById('pScale');
 const fScale = document.getElementById('fScale');
@@ -495,15 +481,13 @@ const labMsg = document.getElementById('labMsg');
 function runTrial(seconds=15){
   if(running) return; running = true; particles=[]; fishes=[];
   let caught=0, totalP=0, fishSafe=0, totalF=0;
-  const start = performance.now();
-  let lastSpawn=0, lastFish=0;
+  const start = performance.now(); let lastSpawn=0, lastFish=0;
 
   function tick(now){
     trialT = seconds*1000 - (now-start);
-    if(now-lastSpawn>300){ for(let i=0;i<inflow;i++){ spawnParticle(); totalP++; } lastSpawn=now; if(Math.random()<.4){ spawnParticle(); totalP++; } }
-    if(now-lastFish>900){ if(Math.random()<.8){ spawnFish(); totalF++; } lastFish=now; }
+    if(now-lastSpawn>420){ for(let i=0;i<inflow;i++){ spawnParticle(); totalP++; } lastSpawn=now; if(Math.random()<.35){ spawnParticle(); totalP++; } }
+    if(now-lastFish>1100){ if(Math.random()<.8){ spawnFish(); totalF++; } lastFish=now; }
 
-    // physics
     particles.forEach(p=>{
       if(p.dead || p.caught) return;
       const nx = p.x + p.vx, ny = p.y + p.vy;
@@ -511,22 +495,19 @@ function runTrial(seconds=15){
       p.x = nx; p.y = ny; p.vy = Math.min(2.6, p.vy + 0.01);
       if(p.y > cvs.height-34){ p.dead = true; }
     });
-
     fishes.forEach(f=>{
       if(f.dead || f.passed) return;
       const nx = f.x + f.vx, ny = f.y + f.vy;
-      if(blockAt(nx, ny)){ f.dead = true; return; } // blocked/hurt by mesh
+      if(blockAt(nx, ny)){ f.dead = true; return; }
       f.x = nx; f.y = ny; f.vy = Math.min(2.0, f.vy + 0.008);
       if(f.y > cvs.height-36){ f.passed = true; fishSafe++; }
     });
 
-    // draw
     drawLab();
-    // update scales
     let pPct = totalP? (caught/totalP*100):0; pScale.style.width = Math.min(100,pPct)+'%';
     let fPct = totalF? (fishSafe/totalF*100):0; fScale.style.width = Math.min(100,fPct)+'%';
 
-    if(trialT>0){ requestAnimationFrame(tick); }
+    if(running && trialT>0){ requestAnimationFrame(tick); }
     else {
       running = false; drawLab();
       const okPlast = (totalP>5 && (caught/totalP)>=0.7);
@@ -534,6 +515,7 @@ function runTrial(seconds=15){
       if(okPlast && okFish){
         labMsg.innerHTML = '<span class="good">Success!</span> Your design protected coral and wildlife.';
         state.score += 10; state.health = clamp(state.health+3.5, 0, 100);
+        progress.l3Done = true; ui.nextToFinal.disabled = false;
       } else if(okPlast){
         labMsg.innerHTML = 'Good capture rate, but fish safety too low. Try fewer dense blocks.';
         state.score += 6; state.health = clamp(state.health+1.5, 0, 100);
@@ -546,20 +528,16 @@ function runTrial(seconds=15){
   }
   requestAnimationFrame(tick);
 }
-
 document.getElementById('runTrial').onclick = ()=> runTrial(15);
+document.getElementById('nextToFinal')?.addEventListener('click', ()=>{
+  progress.unlocked.final = true; ui.btnFinal.classList.remove('locked'); goto('final');
+});
 
-// ==============================================================
-// LEVEL 4 — RIVER RIDDLE (simple evidence chain)
-// ==============================================================
+// ===================== LEVEL 2 — Investigation ===============
 const log = document.getElementById('log');
 const map = document.getElementById('map');
-const nodes = ['beach','estuary','river','factory','riftco'];
 const visited = new Set();
-
-function addLog(msg, cls=''){
-  const p = document.createElement('p'); p.textContent = msg; if(cls) p.className = cls; log.appendChild(p); log.scrollTop = log.scrollHeight;
-}
+function addLog(msg, cls=''){ const p = document.createElement('p'); p.textContent = msg; if(cls) p.className = cls; log.appendChild(p); log.scrollTop = log.scrollHeight; }
 
 map.querySelectorAll('.node').forEach(btn=>{
   btn.addEventListener('click',()=>{
@@ -571,36 +549,34 @@ map.querySelectorAll('.node').forEach(btn=>{
     if(id==='river'){ addLog('River bend camera: spikes at night. Awa detects polyethylene signature.'); state.evidence+=1; }
     if(id==='factory'){ addLog('Riverside Plant claims zero discharge, but records show missing maintenance logs.'); state.evidence+=2; }
     if(id==='riftco'){ addLog('RiftCo supplier manifest: pellet shipments to plant. Pellet loss risk not mitigated.'); state.evidence+=3; }
+    document.getElementById('objL2Now').textContent = state.evidence;
+    if(state.evidence>=progress.l2Goal){ document.getElementById('nextToFilter').disabled = false; }
     syncHUD();
   });
 });
 
-// Accuse vs. negotiate outcomes
-const accuseBtn = document.getElementById('accuseRift');
-const negBtn = document.getElementById('negotiate');
-accuseBtn.onclick = ()=>{
+document.getElementById('accuseRift').onclick = ()=>{
   if(state.evidence>=5){ addLog('Public exposé launched with strong evidence. Rapid cleanup funds released.', 'good'); state.score+=8; state.health = clamp(state.health+2.5,0,100) }
   else { addLog('Exposé with weak evidence backfires. Legal pushback drains capacity.', 'bad'); state.volunteers=Math.max(0,state.volunteers-2); state.health = clamp(state.health-1.5,0,100) }
   syncHUD();
 };
-negBtn.onclick = ()=>{
+document.getElementById('negotiate').onclick = ()=>{
   if(state.evidence>=3){ addLog('Negotiated pellet traps, audits, and river nets. Slower gains, fewer conflicts.', 'good'); state.score+=5; state.health = clamp(state.health+3.0,0,100) }
   else { addLog('Talks stall without evidence. Come back with data.', 'bad'); state.volunteers=Math.max(0,state.volunteers-1) }
   syncHUD();
 };
+document.getElementById('nextToFilter').addEventListener('click', ()=>{
+  progress.unlocked.filter = true; ui.btnFilter.classList.remove('locked'); goto('filter');
+});
 
-// ==============================================================
-// ENDGAME — EXPOSÉ or ACCORD (narrative wrap)
-// ==============================================================
+// ===================== LEVEL 4 — Endgame =====================
 const end = document.getElementById('ending');
 const expose = document.getElementById('expose');
 const accord = document.getElementById('accord');
-
 function endCard(title, body){
   end.innerHTML = `<b style="color:var(--accent)">${title}</b><br>${body}<br><br>
   <small style="color:var(--muted)">Final Stats — Research: <b>${Math.floor(state.score)}</b>, Volunteers: <b>${state.volunteers}</b>, Eco Health: <b>${clamp(Math.round(state.health),0,100)}%</b></small>`;
 }
-
 expose.onclick = ()=>{
   if(state.evidence>=6){
     endCard('Exposé: Tides Turn', 'Your airtight case forces rapid corporate compliance. Short-term backlash, but strong reforms.');
@@ -611,7 +587,6 @@ expose.onclick = ()=>{
   }
   syncHUD();
 };
-
 accord.onclick = ()=>{
   if(state.evidence>=4){
     endCard('Accord: Steady Currents', 'You secure enforceable pellet controls, waste capture, and public data. Slower, durable change.');
@@ -622,6 +597,9 @@ accord.onclick = ()=>{
   syncHUD();
 };
 
+// Onboarding
+spawnDebris(8);
+goto('cleanup');
 </script>
 </body>
 </html>
